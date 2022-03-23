@@ -56,9 +56,28 @@ def get_info_about_sign_zodiac_by_number(request, sign_zodiac: int):
     return HttpResponseRedirect(redirect_url)
 
 
-def get_types_zodiac():
+def get_types_zodiac(request):
     types = list(types_zodiac)
     li_type_elements = ''
-    for type in types:
-        li_type_elements += f'<li><a href={redirect_path}'
-    return
+    for type_zodiac in types:
+        redirect_path = reverse('horoscope_type')
+        li_type_elements += f'<li><a href={redirect_path}{type_zodiac}> {type_zodiac.title()} </a></li>'
+    response = f"""
+    <ul>
+        {li_type_elements}
+    </ul>
+    """
+    return HttpResponse(response)
+
+def get_zodiacs_by_type(requst, type_zodiacs: str):
+    signs = types_zodiac[type_zodiacs]
+    li_sign_elements = ''
+    for sign in signs:
+        redirect_path = reverse('horoscope_name', args=(sign,))
+        li_sign_elements += f'<li><a href={redirect_path}> {sign.title()} </a></li>'
+    response = f"""
+        <ul>
+            {li_sign_elements}
+        </ul>
+        """
+    return HttpResponse(response)
