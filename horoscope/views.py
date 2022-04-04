@@ -3,6 +3,7 @@ from django.http import HttpResponse, HttpResponseNotFound, HttpResponseRedirect
 from django.urls import reverse
 from collections import namedtuple
 from datetime import datetime as dt
+from django.template.loader import render_to_string
 
 Zodiac = namedtuple("Zodiac", "description start_date end_date")
 zodiac_dict = {
@@ -39,26 +40,22 @@ types_zodiac = {
     'water': ['libra', 'aquarius', 'gemini']
 }
 
+
 def index(request):
     zodiacs = list(zodiac_dict)
-    li_elements = ''
-    for sign in zodiacs:
-        redirect_path = reverse('horoscope_name', args=(sign,))
-        li_elements += f'<li><a href={redirect_path}> {sign.title()} </a></li>'
-    response = f"""
-    <ul>
-        {li_elements}
-    </ul>
-    """
-    return HttpResponse(response)
+    context = {
+        'zodiacs': zodiacs
+    }
+    return render(request, 'horoscope/index.html', context=context)
 
 
 def get_info_about_sign_zodiac(request, sign_zodiac: str):
-    zodiac_description = zodiac_dict.get(sign_zodiac).description
-    if zodiac_description:
-        return HttpResponse(zodiac_description)
-    else:
-        return HttpResponseNotFound(f'Unknown sign zodiac - {sign_zodiac}')
+    description = zodiac_dict.get(sign_zodiac).description
+    data = {
+        'description_zodiac': description,
+        'sign': sign_zodiac
+    }
+    return render(request, 'horoscope/info_zodiac.html', context=data)
 
 
 def get_info_about_sign_zodiac_by_number(request, sign_zodiac: int):
@@ -83,6 +80,7 @@ def get_types_zodiac(request):
     """
     return HttpResponse(response)
 
+
 def get_zodiacs_by_type(request, type_zodiacs: str):
     signs = types_zodiac[type_zodiacs]
     li_sign_elements = ''
@@ -95,6 +93,7 @@ def get_zodiacs_by_type(request, type_zodiacs: str):
         </ul>
         """
     return HttpResponse(response)
+
 
 def get_info_about_sign_zodiac_by_date(request, month: int, day: int):
     try:
